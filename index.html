@@ -6,10 +6,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>Reto de lectura · 100 palabras</title>
 <style>
-:root{
-  --bg:#f7f8fb; --card:#fff; --text:#1f2937; --muted:#667085;
-  --accent:#685cf6; --line:#e7e9ee; --ok:#187453; --bad:#b23b3b;
-}
+:root{--bg:#f7f8fb;--card:#fff;--text:#1f2937;--muted:#667085;--accent:#685cf6;--line:#e7e9ee;--bad:#b23b3b}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
 .wrap{max-width:900px;margin:auto;padding:12px 12px 28px}
@@ -17,7 +14,9 @@ header{text-align:center;margin:6px 0 12px}
 h1{font-size:clamp(28px,6vw,44px);margin:0 0 4px}
 .sub{color:var(--muted);font-size:16px}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;margin-bottom:12px;box-shadow:0 6px 18px rgba(20,25,35,.05)}
-.top{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.player-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+select{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:17px;background:#fff;color:var(--text)}
+.top{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;margin-top:12px}
 .metric{padding:10px 6px;border-radius:15px;background:#f3f4f8}
 .metric b{display:block;font-size:clamp(30px,7vw,40px)}
 .metric span{font-size:12px;color:var(--muted)}
@@ -27,7 +26,7 @@ button{border:0;border-radius:15px;padding:14px;font-size:18px;font-weight:800}
 .secondary{background:#eef0f5;color:var(--text)}
 .danger{background:#feecec;color:var(--bad)}
 .status{text-align:center;font-weight:700;margin-top:10px;min-height:22px;font-size:14px}
-.words{display:grid;grid-template-columns:repeat(5,1fr);gap:8px 8px}
+.words{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .word{display:flex;align-items:center;justify-content:center;min-height:48px;text-align:center;font-size:clamp(20px,3.7vw,29px);padding:6px 3px;border-radius:10px}
 .page{text-align:center;color:var(--muted);font-size:13px;margin-top:10px}
 .result{display:none;text-align:center;background:#f5f6ff;border-radius:17px;padding:16px;margin-top:12px}
@@ -35,9 +34,14 @@ button{border:0;border-radius:15px;padding:14px;font-size:18px;font-weight:800}
 .result h2{margin:0 0 6px}
 .note{font-size:13px;color:var(--muted);line-height:1.4}
 .manual{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.history{width:100%;border-collapse:collapse;margin-top:10px}
+.history th,.history td{padding:9px 7px;border-bottom:1px solid var(--line);text-align:left;font-size:14px}
+.history th{font-size:12px;color:var(--muted)}
+.record{font-weight:900;color:var(--accent)}
 @media(max-width:520px){
   .words{grid-template-columns:repeat(4,1fr)}
   .word{font-size:22px;min-height:45px}
+  .player-row{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -49,6 +53,11 @@ button{border:0;border-radius:15px;padding:14px;font-size:18px;font-weight:800}
 </header>
 
 <div class="panel">
+  <div class="player-row">
+    <select id="playerSelect"></select>
+    <button class="secondary" id="addPlayer">➕ Añadir jugador</button>
+  </div>
+
   <div class="top">
     <div class="metric"><b id="time">60</b><span>segundos</span></div>
     <div class="metric"><b id="read">0</b><span>reconocidas</span></div>
@@ -60,10 +69,10 @@ button{border:0;border-radius:15px;padding:14px;font-size:18px;font-weight:800}
     <button class="secondary" id="new">🔀 Nuevas palabras</button>
     <button class="danger" id="stop">⏹ Terminar</button>
   </div>
-  <div class="status" id="status">Pulsa “Empezar”. Las palabras avanzarán solas.</div>
+  <div class="status" id="status">Elige jugador y pulsa “Empezar”.</div>
 
   <div class="result" id="result">
-    <h2>¡Prueba terminada!</h2>
+    <h2 id="resultTitle">¡Prueba terminada!</h2>
     <div class="big" id="finalCount">0</div>
     <div>palabras reconocidas</div>
     <div class="note" id="resultText"></div>
@@ -81,6 +90,21 @@ button{border:0;border-radius:15px;padding:14px;font-size:18px;font-weight:800}
   <div class="manual">
     <button class="secondary" id="plus">+1 palabra</button>
     <button class="secondary" id="minus">−1 palabra</button>
+  </div>
+</div>
+
+<div class="panel">
+  <b>🏆 Resultados</b>
+  <div class="note">Se guardan en este dispositivo para comparar a los jugadores.</div>
+  <div id="recordBox" class="note" style="margin-top:8px"></div>
+  <div style="overflow:auto">
+    <table class="history">
+      <thead><tr><th>Jugador</th><th>Fecha</th><th>Resultado</th></tr></thead>
+      <tbody id="historyBody"></tbody>
+    </table>
+  </div>
+  <div class="controls" style="margin-top:10px">
+    <button class="secondary" id="clearHistory">🗑️ Borrar historial</button>
   </div>
 </div>
 </div>
@@ -107,168 +131,137 @@ película foto dibujo color papel tijera pegamento regla cuaderno pizarra recreo
 mercado tienda dinero moneda euro compra precio cesta botella paquete kilo metro camino puente plaza ciudad pueblo
 yogur galleta chocolate helado azúcar harina aceite tortilla bocadillo ensalada gazpacho pollo jamón cereal
 arena ola piscina toalla bañador gafas cubo pala castillo concha puerto isla faro
+Ana Lucía Marta Elena Laura Paula Sofía María Carmen Lola Sara Alba Eva Julia Irene Noa
+Pablo Diego Hugo Mateo Lucas Leo Daniel Carlos David Jorge Mario Álvaro Sergio Marcos Adrián
+Raúl Luis Juan Pedro Miguel Javier Antonio Manuel Ángel Rubén Bruno Nico Alex
 `.trim().split(/\s+/);
 
-const PAGE_SIZE = 25;
-const PAGE_SECONDS = 15;
-
+const PAGE_SIZE=25, PAGE_SECONDS=15;
 let words=[], pageIndex=0, seconds=60, timer=null, pageTimer=null;
 let active=false, recognition=null, count=0;
-let seenFinal = "";
 
 function norm(s){
   return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
     .replace(/[^a-zñ0-9\s]/gi," ").replace(/\s+/g," ").trim();
 }
-
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
 function makeWords(){
   const unique=[...new Set(bank)];
-  for(let i=unique.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [unique[i],unique[j]]=[unique[j],unique[i]];
-  }
-  words=unique.slice(0,100);
+  words=shuffle(unique).slice(0,100);
 }
-
 function renderPage(){
-  const box=document.getElementById("words");
-  box.innerHTML="";
-  const start=pageIndex*PAGE_SIZE;
-  const end=Math.min(start+PAGE_SIZE,100);
+  const box=document.getElementById("words"); box.innerHTML="";
+  const start=pageIndex*PAGE_SIZE, end=Math.min(start+PAGE_SIZE,100);
   words.slice(start,end).forEach(w=>{
-    const d=document.createElement("div");
-    d.className="word";
-    d.textContent=w;
-    box.appendChild(d);
+    const d=document.createElement("div"); d.className="word"; d.textContent=w; box.appendChild(d);
   });
   document.getElementById("pageInfo").textContent=`Bloque ${pageIndex+1} de 4 · palabras ${start+1}-${end}`;
 }
-
-function reset(){
-  stopRecognition();
-  clearInterval(timer); clearInterval(pageTimer);
-  active=false; seconds=60; count=0; pageIndex=0; seenFinal="";
-  makeWords(); renderPage();
-  document.getElementById("time").textContent="60";
-  document.getElementById("read").textContent="0";
-  document.getElementById("left").textContent="100";
-  document.getElementById("result").style.display="none";
-  document.getElementById("status").textContent="Pulsa “Empezar”. Las palabras avanzarán solas.";
-  document.getElementById("start").textContent="🎙️ Empezar";
-}
-
 function updateCount(){
   count=Math.max(0,Math.min(100,count));
   document.getElementById("read").textContent=count;
   document.getElementById("left").textContent=100-count;
 }
-
+function getPlayers(){ return JSON.parse(localStorage.getItem("readingPlayers")||'["Jugador 1"]'); }
+function savePlayers(p){ localStorage.setItem("readingPlayers",JSON.stringify(p)); }
+function refreshPlayers(selected){
+  const sel=document.getElementById("playerSelect");
+  const players=getPlayers(); sel.innerHTML="";
+  players.forEach(p=>{const o=document.createElement("option");o.value=p;o.textContent=p;sel.appendChild(o);});
+  if(selected && players.includes(selected)) sel.value=selected;
+}
+function getHistory(){ return JSON.parse(localStorage.getItem("readingHistory")||"[]"); }
+function saveHistory(h){ localStorage.setItem("readingHistory",JSON.stringify(h)); }
+function renderHistory(){
+  const h=getHistory(), body=document.getElementById("historyBody"); body.innerHTML="";
+  h.slice().reverse().slice(0,30).forEach(r=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${r.player}</td><td>${r.date}</td><td><b>${r.score}</b></td>`;
+    body.appendChild(tr);
+  });
+  const player=document.getElementById("playerSelect").value;
+  const scores=h.filter(r=>r.player===player).map(r=>r.score);
+  document.getElementById("recordBox").innerHTML=scores.length
+    ? `Récord de <b>${player}</b>: <span class="record">${Math.max(...scores)} palabras</span>`
+    : `Todavía no hay resultados guardados para <b>${player}</b>.`;
+}
+function reset(){
+  stopRecognition(); clearInterval(timer); clearInterval(pageTimer);
+  active=false;seconds=60;count=0;pageIndex=0;makeWords();renderPage();updateCount();
+  document.getElementById("time").textContent="60";
+  document.getElementById("result").style.display="none";
+  document.getElementById("status").textContent="Elige jugador y pulsa “Empezar”.";
+  document.getElementById("start").textContent="🎙️ Empezar";
+}
 function startRecognition(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){
-    document.getElementById("status").textContent="Este navegador no ofrece reconocimiento de voz.";
-    return;
-  }
-  recognition=new SR();
-  recognition.lang="es-ES";
-  recognition.continuous=true;
-  recognition.interimResults=true;
-  recognition.maxAlternatives=1;
-
-  let lastInterimWords = 0;
-
-  recognition.onresult=(e)=>{
+  if(!SR){document.getElementById("status").textContent="Este navegador no ofrece reconocimiento de voz.";return;}
+  recognition=new SR(); recognition.lang="es-ES"; recognition.continuous=true; recognition.interimResults=false;
+  recognition.onresult=e=>{
     let finalText="";
-    let interimText="";
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      const t=e.results[i][0].transcript;
-      if(e.results[i].isFinal) finalText+=" "+t;
-      else interimText+=" "+t;
-    }
-
+    for(let i=e.resultIndex;i<e.results.length;i++) if(e.results[i].isFinal) finalText+=" "+e.results[i][0].transcript;
     if(finalText.trim()){
-      const n=norm(finalText).split(/\s+/).filter(Boolean).length;
-      count += n;
-      lastInterimWords=0;
+      count+=norm(finalText).split(/\s+/).filter(Boolean).length;
       updateCount();
-    } else if(interimText.trim()){
-      // Muestra sensación de respuesta rápida sin comprometer el total.
-      const n=norm(interimText).split(/\s+/).filter(Boolean).length;
-      document.getElementById("status").textContent=`🎙️ Escuchando… ${n} palabra${n===1?"":"s"} en curso`;
-      lastInterimWords=n;
     }
   };
-
-  recognition.onend=()=>{
-    if(active){
-      setTimeout(()=>{try{recognition.start()}catch(e){}},150);
-    }
-  };
-
-  recognition.onerror=(e)=>{
-    if(active) document.getElementById("status").textContent="Micrófono: "+e.error;
-  };
-
-  try{
-    recognition.start();
-    document.getElementById("status").textContent="🎙️ Escuchando… lee seguido, sin esperar a que cambie la pantalla.";
-  }catch(e){}
+  recognition.onend=()=>{if(active)setTimeout(()=>{try{recognition.start()}catch(e){}},150)};
+  recognition.onerror=e=>{if(active)document.getElementById("status").textContent="Micrófono: "+e.error};
+  try{recognition.start();document.getElementById("status").textContent="🎙️ Escuchando… lee seguido."}catch(e){}
 }
-
 function stopRecognition(){
-  if(recognition){
-    try{recognition.onend=null; recognition.stop();}catch(e){}
-    recognition=null;
-  }
+  if(recognition){try{recognition.onend=null;recognition.stop()}catch(e){} recognition=null;}
 }
-
 function start(){
-  if(active) return;
-  active=true; seconds=60; count=0; pageIndex=0; updateCount(); renderPage();
+  if(active)return;
+  active=true;seconds=60;count=0;pageIndex=0;updateCount();renderPage();
   document.getElementById("result").style.display="none";
   document.getElementById("start").textContent="🎙️ Leyendo…";
   startRecognition();
-
-  clearInterval(timer);
-  timer=setInterval(()=>{
-    seconds--;
-    document.getElementById("time").textContent=seconds;
-    if(seconds<=0) finish();
-  },1000);
-
-  clearInterval(pageTimer);
-  pageTimer=setInterval(()=>{
-    if(!active) return;
-    if(pageIndex<3){ pageIndex++; renderPage(); }
-  }, PAGE_SECONDS*1000);
+  timer=setInterval(()=>{seconds--;document.getElementById("time").textContent=seconds;if(seconds<=0)finish()},1000);
+  pageTimer=setInterval(()=>{if(active&&pageIndex<3){pageIndex++;renderPage()}},PAGE_SECONDS*1000);
 }
-
 function finish(){
-  if(!active){
-    document.getElementById("status").textContent="La prueba todavía no ha empezado.";
-    return;
-  }
-  active=false;
-  clearInterval(timer); clearInterval(pageTimer); stopRecognition();
-  document.getElementById("start").textContent="🎙️ Empezar";
-  document.getElementById("status").textContent="Prueba terminada.";
+  if(!active){document.getElementById("status").textContent="La prueba todavía no ha empezado.";return;}
+  active=false;clearInterval(timer);clearInterval(pageTimer);stopRecognition();
+  const player=document.getElementById("playerSelect").value;
+  const now=new Date();
+  const date=now.toLocaleDateString("es-ES",{day:"2-digit",month:"2-digit",year:"2-digit"})+" "+now.toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"});
+  const h=getHistory(); h.push({player,date,score:count}); saveHistory(h);
+  document.getElementById("resultTitle").textContent=`¡Muy bien, ${player}!`;
   document.getElementById("finalCount").textContent=count;
-  document.getElementById("resultText").textContent =
-    count>=100 ? "¡100 palabras o más! Excelente." :
-    count>=80 ? "¡Muy buen ritmo!" :
-    count>=60 ? "¡Buen trabajo! Sigue practicando." :
-    "Cada intento ayuda a mejorar.";
+  document.getElementById("resultText").textContent=count>=100?"¡Reto completado!":count>=80?"¡Muy buen ritmo!":count>=60?"¡Buen trabajo!":"¡A por el siguiente intento!";
   document.getElementById("result").style.display="block";
-  document.getElementById("result").scrollIntoView({behavior:"smooth",block:"center"});
+  document.getElementById("status").textContent="Prueba terminada.";
+  document.getElementById("start").textContent="🎙️ Empezar";
+  renderHistory();
 }
-
 document.getElementById("start").onclick=start;
 document.getElementById("stop").onclick=finish;
 document.getElementById("new").onclick=reset;
 document.getElementById("plus").onclick=()=>{if(active){count++;updateCount()}};
 document.getElementById("minus").onclick=()=>{if(active){count--;updateCount()}};
+document.getElementById("addPlayer").onclick=()=>{
+  const name=prompt("Nombre del jugador:");
+  if(!name||!name.trim())return;
+  const clean=name.trim();
+  const p=getPlayers(); if(!p.includes(clean)){p.push(clean);savePlayers(p);}
+  refreshPlayers(clean);renderHistory();
+};
+document.getElementById("playerSelect").onchange=renderHistory;
+document.getElementById("clearHistory").onclick=()=>{
+  if(confirm("¿Quieres borrar todos los resultados guardados?")){saveHistory([]);renderHistory();}
+};
 
+refreshPlayers();
 reset();
+renderHistory();
 </script>
 </body>
 </html>
