@@ -3,68 +3,102 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
 <title>Reto de lectura · 100 palabras</title>
 <style>
 :root{
   --bg:#f7f8fb; --card:#ffffff; --text:#1f2937; --muted:#667085;
-  --accent:#6c63ff; --ok:#1f9d68; --bad:#d64545; --line:#e7e9ee;
+  --accent:#685cf6; --ok:#1f9d68; --bad:#d64545; --line:#e7e9ee;
 }
 *{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text)}
 body{
-  margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-  background:var(--bg); color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  min-height:100vh;
 }
-.wrap{max-width:980px;margin:0 auto;padding:18px}
-header{text-align:center;margin:8px 0 16px}
-h1{font-size:clamp(26px,5vw,42px);margin:0 0 6px}
-.sub{color:var(--muted);font-size:16px}
+.wrap{max-width:900px;margin:0 auto;padding:14px 14px 30px}
+header{text-align:center;margin:8px 0 14px}
+h1{font-size:clamp(28px,6vw,44px);margin:0 0 4px}
+.sub{color:var(--muted);font-size:17px}
+
 .panel{
-  background:var(--card); border:1px solid var(--line); border-radius:18px;
-  padding:16px; box-shadow:0 6px 20px rgba(20,25,35,.05); margin-bottom:14px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:14px;
+  box-shadow:0 6px 18px rgba(20,25,35,.05);
+  margin-bottom:14px;
 }
 .top{
-  display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:center;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center
 }
-.metric{padding:10px;border-radius:14px;background:#f4f5f9}
-.metric b{display:block;font-size:32px}
+.metric{padding:12px 7px;border-radius:16px;background:#f3f4f8}
+.metric b{display:block;font-size:clamp(30px,7vw,42px)}
 .metric span{font-size:13px;color:var(--muted)}
-.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+
+.controls{
+  display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px
+}
 button{
-  border:0;border-radius:14px;padding:13px 18px;font-size:17px;font-weight:700;
-  cursor:pointer;
+  border:0;border-radius:16px;padding:15px 18px;
+  font-size:18px;font-weight:800;cursor:pointer
 }
 .primary{background:var(--accent);color:#fff}
 .secondary{background:#eef0f5;color:var(--text)}
 .danger{background:#feecec;color:var(--bad)}
+button:active{transform:scale(.99)}
+
+.status{
+  text-align:center;font-weight:700;margin-top:12px;min-height:24px;
+  font-size:15px
+}
+
+.words-panel{padding:14px 12px 18px}
 .words{
-  display:grid;grid-template-columns:repeat(5,1fr);gap:8px 12px;
-  font-size:clamp(20px,3.2vw,30px);line-height:1.35;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px 12px;
 }
 .word{
-  padding:7px 8px;border-radius:10px;text-align:center;border:2px solid transparent;
-  transition:.15s;
+  min-height:54px;
+  display:flex;align-items:center;justify-content:center;
+  padding:8px 6px;border-radius:12px;text-align:center;
+  border:2px solid transparent;
+  font-size:clamp(22px,4.2vw,32px);
+  line-height:1.1;
 }
-.word.current{border-color:var(--accent);background:#f0efff;font-weight:800}
-.word.done{background:#e7f7f0;color:#187453}
-.word.skipped{background:#fff1f1;color:#a92f2f}
-.note{font-size:14px;color:var(--muted);line-height:1.4;margin-top:10px}
-.status{text-align:center;font-weight:700;margin-top:10px;min-height:24px}
+.word.current{
+  border-color:var(--accent);
+  background:#f0efff;
+  font-weight:900;
+}
+.word.done{background:#e8f7ef;color:#176f50}
+.word.skipped{background:#fff1f1;color:#9e3030}
+.page-indicator{
+  text-align:center;color:var(--muted);font-size:13px;margin-top:12px
+}
+
 .result{
-  display:none;text-align:center;padding:18px;border-radius:16px;background:#f5f7ff;
-  margin-top:14px
+  display:none;text-align:center;
+  padding:18px;border-radius:18px;background:#f5f6ff;margin-top:14px
 }
 .result h2{margin:0 0 8px;font-size:28px}
-.result .big{font-size:52px;font-weight:900;color:var(--accent)}
-.manual{display:flex;gap:10px;justify-content:center;margin-top:10px}
-@media (max-width:700px){
+.big{font-size:58px;font-weight:900;color:var(--accent)}
+.note{font-size:14px;color:var(--muted);line-height:1.45;margin-top:8px}
+
+.manual{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px
+}
+
+@media (max-width:650px){
   .words{grid-template-columns:repeat(3,1fr)}
-  .top{grid-template-columns:1fr 1fr 1fr}
 }
 @media (max-width:430px){
   .wrap{padding:10px}
-  .words{grid-template-columns:repeat(2,1fr)}
-  .metric b{font-size:26px}
-  button{width:100%}
+  .words{grid-template-columns:repeat(3,1fr);gap:8px}
+  .word{font-size:24px;min-height:50px;padding:7px 4px}
+  .metric b{font-size:32px}
+  .metric span{font-size:12px}
 }
 </style>
 </head>
@@ -78,41 +112,41 @@ button{
 <div class="panel">
   <div class="top">
     <div class="metric"><b id="time">60</b><span>segundos</span></div>
-    <div class="metric"><b id="read">0</b><span>palabras leídas</span></div>
+    <div class="metric"><b id="read">0</b><span>leídas</span></div>
     <div class="metric"><b id="left">100</b><span>por leer</span></div>
   </div>
 
   <div class="controls">
     <button class="primary" id="start">🎙️ Empezar</button>
     <button class="secondary" id="new">🔀 Nuevas palabras</button>
-    <button class="danger" id="stop" disabled>⏹ Terminar</button>
+    <button class="danger" id="stop">⏹ Terminar</button>
   </div>
+
   <div class="status" id="status">Pulsa “Empezar” y permite el acceso al micrófono.</div>
 
   <div class="result" id="result">
     <h2>¡Prueba terminada!</h2>
     <div class="big"><span id="finalCount">0</span></div>
-    <div>palabras reconocidas en 1 minuto</div>
+    <div>palabras reconocidas</div>
     <div id="resultText" class="note"></div>
   </div>
 </div>
 
-<div class="panel">
+<div class="panel words-panel">
   <div class="words" id="words"></div>
+  <div class="page-indicator" id="pageIndicator"></div>
 </div>
 
 <div class="panel">
   <b>Modo de respaldo</b>
-  <div class="note">Si el iPhone no reconoce bien la voz, un adulto puede pulsar “✓ Leída” cada vez que la niña avance una palabra, o “Saltar” si se atasca. El contador sigue siendo automático.</div>
+  <div class="note">
+    Si alguna palabra no la reconoce bien el micrófono, un adulto puede pulsar “✓ Leída”.
+    Si se atasca, pulsa “Saltar”.
+  </div>
   <div class="manual">
     <button class="secondary" id="manualOk">✓ Leída</button>
     <button class="secondary" id="manualSkip">↪ Saltar</button>
   </div>
-</div>
-
-<div class="note">
-Consejo: usa Safari, habla cerca del iPhone y haz la prueba en un lugar silencioso. 
-El reconocimiento automático es orientativo: puede confundir algunas palabras infantiles o palabras dichas muy rápido.
 </div>
 </div>
 
@@ -135,43 +169,58 @@ hermano hermana primo prima familia bebé señor señora gente persona nombre n�
 tiempo hora minuto segundo reloj día semana mes año primavera verano otoño invierno desayuno comida merienda cena hambre sed
 corazón cabeza brazo pierna dedo nariz oreja diente lengua espalda barriga rodilla cuello cara cuerpo salud
 película foto dibujo color papel tijera pegamento regla cuaderno pizarra recreo deberes examen pregunta problema solución
-mercado tienda dinero moneda euro compra precio cesta botella paquete kilo metro camino puente plaza ciudad pueblo casa
-queso yogur galleta chocolate helado azúcar harina aceite tortilla bocadillo ensalada gazpacho pollo jamón cereal
-playa arena ola piscina agua toalla bañador gafas cubo pala castillo concha barco puerto isla faro
+mercado tienda dinero moneda euro compra precio cesta botella paquete kilo metro camino puente plaza ciudad pueblo
+yogur galleta chocolate helado azúcar harina aceite tortilla bocadillo ensalada gazpacho pollo jamón cereal
+arena ola piscina toalla bañador gafas cubo pala castillo concha puerto isla faro
 `.trim().split(/\s+/);
 
 let words=[], idx=0, count=0, seconds=60, timer=null, recognition=null, active=false;
+const PAGE_SIZE = 15;
 
 function norm(s){
   return s.toLowerCase()
     .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-    .replace(/[^a-zñáéíóúü0-9\s]/gi," ")
+    .replace(/[^a-zñ0-9\s]/gi," ")
     .trim();
 }
 
 function newWords(){
+  stopRecognitionOnly();
+  clearInterval(timer);
+  active=false;
   const shuffled=[...new Set(bank)].sort(()=>Math.random()-.5);
   words=shuffled.slice(0,100);
   idx=0; count=0; seconds=60;
-  render();
   document.getElementById('time').textContent=60;
   document.getElementById('read').textContent=0;
   document.getElementById('left').textContent=100;
   document.getElementById('result').style.display='none';
   document.getElementById('status').textContent='Pulsa “Empezar” y permite el acceso al micrófono.';
+  document.getElementById('start').textContent='🎙️ Empezar';
+  render();
 }
 
 function render(){
   const box=document.getElementById('words');
   box.innerHTML='';
-  words.forEach((w,i)=>{
+
+  // Ventana automática de 15 palabras. Avanza sola en bloques de 15.
+  const pageStart=Math.floor(idx/PAGE_SIZE)*PAGE_SIZE;
+  const pageEnd=Math.min(pageStart+PAGE_SIZE, words.length);
+
+  for(let i=pageStart;i<pageEnd;i++){
     const d=document.createElement('div');
     d.className='word';
     if(i<idx) d.classList.add('done');
-    if(i===idx) d.classList.add('current');
-    d.textContent=w;
+    if(i===idx && idx<100) d.classList.add('current');
+    d.textContent=words[i];
     box.appendChild(d);
-  });
+  }
+
+  const page=Math.floor(idx/PAGE_SIZE)+1;
+  const totalPages=Math.ceil(words.length/PAGE_SIZE);
+  document.getElementById('pageIndicator').textContent =
+    idx>=100 ? 'Lista completada' : `Bloque ${Math.min(page,totalPages)} de ${totalPages}`;
 }
 
 function update(){
@@ -188,8 +237,6 @@ function markOk(){
 
 function markSkip(){
   if(!active || idx>=100) return;
-  const els=document.querySelectorAll('.word');
-  if(els[idx]) els[idx].classList.add('skipped');
   idx++; update();
   if(idx>=100) finish();
 }
@@ -198,15 +245,17 @@ function processTranscript(text){
   const spoken=norm(text).split(/\s+/).filter(Boolean);
   for(const token of spoken){
     if(idx>=words.length) break;
-    const target=norm(words[idx]);
-    if(token===target){
+
+    const current=norm(words[idx]);
+    const next1=idx+1<words.length ? norm(words[idx+1]) : "";
+    const next2=idx+2<words.length ? norm(words[idx+2]) : "";
+
+    if(token===current){
       idx++; count++;
-    } else {
-      // permite que el reconocedor repita o añada palabras de relleno
-      const next1 = idx+1<words.length ? norm(words[idx+1]) : "";
-      const next2 = idx+2<words.length ? norm(words[idx+2]) : "";
-      if(token===next1){ idx+=2; count++; }
-      else if(token===next2){ idx+=3; count++; }
+    } else if(token===next1){
+      idx+=2; count++;
+    } else if(token===next2){
+      idx+=3; count++;
     }
   }
   update();
@@ -216,14 +265,17 @@ function processTranscript(text){
 function startRecognition(){
   const SR=window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!SR){
-    document.getElementById('status').textContent='Este navegador no ofrece reconocimiento de voz. Puedes usar el modo de respaldo.';
+    document.getElementById('status').textContent =
+      'Este navegador no ofrece reconocimiento de voz. Usa el modo de respaldo.';
     return;
   }
+
   recognition=new SR();
   recognition.lang='es-ES';
   recognition.continuous=true;
   recognition.interimResults=false;
   recognition.maxAlternatives=1;
+
   recognition.onresult=(e)=>{
     let txt='';
     for(let i=e.resultIndex;i<e.results.length;i++){
@@ -231,52 +283,86 @@ function startRecognition(){
     }
     if(txt.trim()) processTranscript(txt);
   };
+
   recognition.onerror=(e)=>{
-    document.getElementById('status').textContent='Micrófono: '+e.error+'. Puedes continuar con el modo de respaldo.';
-  };
-  recognition.onend=()=>{
     if(active){
-      try{ recognition.start(); }catch(e){}
+      document.getElementById('status').textContent =
+        'Micrófono: '+e.error+'. Puedes seguir con los botones de respaldo.';
     }
   };
+
+  recognition.onend=()=>{
+    if(active){
+      setTimeout(()=>{
+        if(active){
+          try{ recognition.start(); }catch(e){}
+        }
+      },250);
+    }
+  };
+
   try{
     recognition.start();
-    document.getElementById('status').textContent='🎙️ Escuchando… empieza a leer desde la palabra marcada.';
+    document.getElementById('status').textContent =
+      '🎙️ Escuchando… empieza por la palabra marcada.';
   }catch(e){
-    document.getElementById('status').textContent='No se pudo iniciar el micrófono. Usa el modo de respaldo.';
+    document.getElementById('status').textContent =
+      'No se pudo iniciar el micrófono. Usa el modo de respaldo.';
   }
 }
 
 function start(){
   if(active) return;
-  active=true; idx=0; count=0; seconds=60; update();
+  active=true;
+  idx=0; count=0; seconds=60;
   document.getElementById('result').style.display='none';
-  document.getElementById('start').disabled=true;
-  document.getElementById('new').disabled=true;
-  document.getElementById('stop').disabled=false;
+  document.getElementById('start').textContent='🎙️ Leyendo...';
+  update();
   startRecognition();
-  document.getElementById('time').textContent=seconds;
+
+  clearInterval(timer);
   timer=setInterval(()=>{
+    if(!active) return;
     seconds--;
     document.getElementById('time').textContent=seconds;
     if(seconds<=0) finish();
   },1000);
 }
 
+function stopRecognitionOnly(){
+  if(recognition){
+    try{
+      recognition.onend=null;
+      recognition.stop();
+    }catch(e){}
+    recognition=null;
+  }
+}
+
 function finish(){
-  if(!active) return;
+  if(!active){
+    document.getElementById('status').textContent =
+      'La prueba todavía no ha empezado.';
+    return;
+  }
+
   active=false;
   clearInterval(timer);
-  if(recognition){ try{ recognition.stop(); }catch(e){} }
-  document.getElementById('start').disabled=false;
-  document.getElementById('new').disabled=false;
-  document.getElementById('stop').disabled=true;
+  stopRecognitionOnly();
+
+  document.getElementById('start').textContent='🎙️ Empezar';
   document.getElementById('status').textContent='Prueba terminada.';
   document.getElementById('finalCount').textContent=count;
-  document.getElementById('resultText').textContent=
-    count>=100 ? '¡Ha completado las 100 palabras!' :
-    'Puede volver a intentarlo con una lista nueva cuando quiera.';
+
+  let msg='';
+  if(count>=100) msg='¡Ha completado las 100 palabras!';
+  else if(count>=80) msg='¡Muy buen ritmo!';
+  else if(count>=60) msg='¡Buen trabajo! Sigue practicando.';
+  else msg='Cada intento cuenta. ¡A por el siguiente!';
+
+  document.getElementById('resultText').textContent=msg;
   document.getElementById('result').style.display='block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'center'});
 }
 
 document.getElementById('start').onclick=start;
