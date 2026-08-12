@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Reto de lectura · 100 palabras</title>
+<style>
+:root{
+  --bg:#f7f8fb; --card:#ffffff; --text:#1f2937; --muted:#667085;
+  --accent:#6c63ff; --ok:#1f9d68; --bad:#d64545; --line:#e7e9ee;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:var(--bg); color:var(--text);
+}
+.wrap{max-width:980px;margin:0 auto;padding:18px}
+header{text-align:center;margin:8px 0 16px}
+h1{font-size:clamp(26px,5vw,42px);margin:0 0 6px}
+.sub{color:var(--muted);font-size:16px}
+.panel{
+  background:var(--card); border:1px solid var(--line); border-radius:18px;
+  padding:16px; box-shadow:0 6px 20px rgba(20,25,35,.05); margin-bottom:14px;
+}
+.top{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:center;
+}
+.metric{padding:10px;border-radius:14px;background:#f4f5f9}
+.metric b{display:block;font-size:32px}
+.metric span{font-size:13px;color:var(--muted)}
+.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+button{
+  border:0;border-radius:14px;padding:13px 18px;font-size:17px;font-weight:700;
+  cursor:pointer;
+}
+.primary{background:var(--accent);color:#fff}
+.secondary{background:#eef0f5;color:var(--text)}
+.danger{background:#feecec;color:var(--bad)}
+.words{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:8px 12px;
+  font-size:clamp(20px,3.2vw,30px);line-height:1.35;
+}
+.word{
+  padding:7px 8px;border-radius:10px;text-align:center;border:2px solid transparent;
+  transition:.15s;
+}
+.word.current{border-color:var(--accent);background:#f0efff;font-weight:800}
+.word.done{background:#e7f7f0;color:#187453}
+.word.skipped{background:#fff1f1;color:#a92f2f}
+.note{font-size:14px;color:var(--muted);line-height:1.4;margin-top:10px}
+.status{text-align:center;font-weight:700;margin-top:10px;min-height:24px}
+.result{
+  display:none;text-align:center;padding:18px;border-radius:16px;background:#f5f7ff;
+  margin-top:14px
+}
+.result h2{margin:0 0 8px;font-size:28px}
+.result .big{font-size:52px;font-weight:900;color:var(--accent)}
+.manual{display:flex;gap:10px;justify-content:center;margin-top:10px}
+@media (max-width:700px){
+  .words{grid-template-columns:repeat(3,1fr)}
+  .top{grid-template-columns:1fr 1fr 1fr}
+}
+@media (max-width:430px){
+  .wrap{padding:10px}
+  .words{grid-template-columns:repeat(2,1fr)}
+  .metric b{font-size:26px}
+  button{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>📚 Reto de lectura</h1>
+  <div class="sub">100 palabras aleatorias · 1 minuto</div>
+</header>
+
+<div class="panel">
+  <div class="top">
+    <div class="metric"><b id="time">60</b><span>segundos</span></div>
+    <div class="metric"><b id="read">0</b><span>palabras leídas</span></div>
+    <div class="metric"><b id="left">100</b><span>por leer</span></div>
+  </div>
+
+  <div class="controls">
+    <button class="primary" id="start">🎙️ Empezar</button>
+    <button class="secondary" id="new">🔀 Nuevas palabras</button>
+    <button class="danger" id="stop" disabled>⏹ Terminar</button>
+  </div>
+  <div class="status" id="status">Pulsa “Empezar” y permite el acceso al micrófono.</div>
+
+  <div class="result" id="result">
+    <h2>¡Prueba terminada!</h2>
+    <div class="big"><span id="finalCount">0</span></div>
+    <div>palabras reconocidas en 1 minuto</div>
+    <div id="resultText" class="note"></div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="words" id="words"></div>
+</div>
+
+<div class="panel">
+  <b>Modo de respaldo</b>
+  <div class="note">Si el iPhone no reconoce bien la voz, un adulto puede pulsar “✓ Leída” cada vez que la niña avance una palabra, o “Saltar” si se atasca. El contador sigue siendo automático.</div>
+  <div class="manual">
+    <button class="secondary" id="manualOk">✓ Leída</button>
+    <button class="secondary" id="manualSkip">↪ Saltar</button>
+  </div>
+</div>
+
+<div class="note">
+Consejo: usa Safari, habla cerca del iPhone y haz la prueba en un lugar silencioso. 
+El reconocimiento automático es orientativo: puede confundir algunas palabras infantiles o palabras dichas muy rápido.
+</div>
+</div>
+
+<script>
+const bank = `
+casa mesa silla gato perro sol luna mar pan sal tren flor nube mano pie ojo boca pelo cama vaso plato libro hoja lápiz goma
+niño niña mamá papá abuelo abuela amigo amiga escuela clase patio parque calle coche moto bici árbol campo río playa montaña
+leche agua sopa arroz pasta queso huevo carne fruta pera manzana uva fresa limón naranja tomate patata panadero médico maestra
+rojo azul verde blanco negro rosa gris grande pequeño alto bajo largo corto nuevo viejo bueno malo feliz triste fuerte suave
+uno dos tres cuatro cinco seis siete ocho nueve diez lunes martes miércoles jueves viernes sábado domingo enero febrero marzo abril
+mayo junio julio agosto septiembre octubre noviembre diciembre mañana tarde noche hoy ayer pronto lejos cerca dentro fuera arriba
+abajo delante detrás izquierda derecha rápido lento mucho poco siempre nunca aquí allí ahora luego antes después primero último
+correr saltar jugar leer escribir pintar cantar bailar mirar ver oír hablar decir contar sumar restar abrir cerrar subir bajar
+comer beber dormir reír llorar andar nadar volar vivir querer tener hacer poner sacar entrar salir venir ir dar tomar coger dejar
+bonito alegre limpio claro oscuro caliente frío dulce salado redondo cuadrado fácil difícil tranquilo ruido música cuento juego
+pelota muñeca barco avión estrella cielo lluvia viento nieve fuego tierra bosque jardín puerta ventana tejado cocina salón baño
+camisa pantalón vestido zapato calcetín abrigo gorro bufanda bolsillo botón mochila caja bolsa regalo fiesta tarta vela globo
+conejo caballo vaca oveja gallina pato pájaro pez rana mariposa abeja hormiga león tigre elefante mono jirafa oso lobo zorro
+hermano hermana primo prima familia bebé señor señora gente persona nombre número letra palabra frase pregunta respuesta verdad
+tiempo hora minuto segundo reloj día semana mes año primavera verano otoño invierno desayuno comida merienda cena hambre sed
+corazón cabeza brazo pierna dedo nariz oreja diente lengua espalda barriga rodilla cuello cara cuerpo salud
+película foto dibujo color papel tijera pegamento regla cuaderno pizarra recreo deberes examen pregunta problema solución
+mercado tienda dinero moneda euro compra precio cesta botella paquete kilo metro camino puente plaza ciudad pueblo casa
+queso yogur galleta chocolate helado azúcar harina aceite tortilla bocadillo ensalada gazpacho pollo jamón cereal
+playa arena ola piscina agua toalla bañador gafas cubo pala castillo concha barco puerto isla faro
+`.trim().split(/\s+/);
+
+let words=[], idx=0, count=0, seconds=60, timer=null, recognition=null, active=false;
+
+function norm(s){
+  return s.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-zñáéíóúü0-9\s]/gi," ")
+    .trim();
+}
+
+function newWords(){
+  const shuffled=[...new Set(bank)].sort(()=>Math.random()-.5);
+  words=shuffled.slice(0,100);
+  idx=0; count=0; seconds=60;
+  render();
+  document.getElementById('time').textContent=60;
+  document.getElementById('read').textContent=0;
+  document.getElementById('left').textContent=100;
+  document.getElementById('result').style.display='none';
+  document.getElementById('status').textContent='Pulsa “Empezar” y permite el acceso al micrófono.';
+}
+
+function render(){
+  const box=document.getElementById('words');
+  box.innerHTML='';
+  words.forEach((w,i)=>{
+    const d=document.createElement('div');
+    d.className='word';
+    if(i<idx) d.classList.add('done');
+    if(i===idx) d.classList.add('current');
+    d.textContent=w;
+    box.appendChild(d);
+  });
+}
+
+function update(){
+  document.getElementById('read').textContent=count;
+  document.getElementById('left').textContent=Math.max(0,100-idx);
+  render();
+}
+
+function markOk(){
+  if(!active || idx>=100) return;
+  idx++; count++; update();
+  if(idx>=100) finish();
+}
+
+function markSkip(){
+  if(!active || idx>=100) return;
+  const els=document.querySelectorAll('.word');
+  if(els[idx]) els[idx].classList.add('skipped');
+  idx++; update();
+  if(idx>=100) finish();
+}
+
+function processTranscript(text){
+  const spoken=norm(text).split(/\s+/).filter(Boolean);
+  for(const token of spoken){
+    if(idx>=words.length) break;
+    const target=norm(words[idx]);
+    if(token===target){
+      idx++; count++;
+    } else {
+      // permite que el reconocedor repita o añada palabras de relleno
+      const next1 = idx+1<words.length ? norm(words[idx+1]) : "";
+      const next2 = idx+2<words.length ? norm(words[idx+2]) : "";
+      if(token===next1){ idx+=2; count++; }
+      else if(token===next2){ idx+=3; count++; }
+    }
+  }
+  update();
+  if(idx>=100) finish();
+}
+
+function startRecognition(){
+  const SR=window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){
+    document.getElementById('status').textContent='Este navegador no ofrece reconocimiento de voz. Puedes usar el modo de respaldo.';
+    return;
+  }
+  recognition=new SR();
+  recognition.lang='es-ES';
+  recognition.continuous=true;
+  recognition.interimResults=false;
+  recognition.maxAlternatives=1;
+  recognition.onresult=(e)=>{
+    let txt='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) txt += ' ' + e.results[i][0].transcript;
+    }
+    if(txt.trim()) processTranscript(txt);
+  };
+  recognition.onerror=(e)=>{
+    document.getElementById('status').textContent='Micrófono: '+e.error+'. Puedes continuar con el modo de respaldo.';
+  };
+  recognition.onend=()=>{
+    if(active){
+      try{ recognition.start(); }catch(e){}
+    }
+  };
+  try{
+    recognition.start();
+    document.getElementById('status').textContent='🎙️ Escuchando… empieza a leer desde la palabra marcada.';
+  }catch(e){
+    document.getElementById('status').textContent='No se pudo iniciar el micrófono. Usa el modo de respaldo.';
+  }
+}
+
+function start(){
+  if(active) return;
+  active=true; idx=0; count=0; seconds=60; update();
+  document.getElementById('result').style.display='none';
+  document.getElementById('start').disabled=true;
+  document.getElementById('new').disabled=true;
+  document.getElementById('stop').disabled=false;
+  startRecognition();
+  document.getElementById('time').textContent=seconds;
+  timer=setInterval(()=>{
+    seconds--;
+    document.getElementById('time').textContent=seconds;
+    if(seconds<=0) finish();
+  },1000);
+}
+
+function finish(){
+  if(!active) return;
+  active=false;
+  clearInterval(timer);
+  if(recognition){ try{ recognition.stop(); }catch(e){} }
+  document.getElementById('start').disabled=false;
+  document.getElementById('new').disabled=false;
+  document.getElementById('stop').disabled=true;
+  document.getElementById('status').textContent='Prueba terminada.';
+  document.getElementById('finalCount').textContent=count;
+  document.getElementById('resultText').textContent=
+    count>=100 ? '¡Ha completado las 100 palabras!' :
+    'Puede volver a intentarlo con una lista nueva cuando quiera.';
+  document.getElementById('result').style.display='block';
+}
+
+document.getElementById('start').onclick=start;
+document.getElementById('stop').onclick=finish;
+document.getElementById('new').onclick=newWords;
+document.getElementById('manualOk').onclick=markOk;
+document.getElementById('manualSkip').onclick=markSkip;
+
+newWords();
+</script>
+</body>
+</html>
